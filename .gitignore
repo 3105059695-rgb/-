@@ -1,0 +1,12 @@
+﻿node_modules/
+.next/
+.env.local
+.env
+*.log
+server.log
+server_err.log
+full_output.log
+response.html
+.DS_Store
+dist/
+.turbo/

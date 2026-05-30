@@ -1,0 +1,734 @@
+// ==========================================
+// 推理副本系统 - 15个剧本（10长 + 5中）
+// 基于经典推理小说改编
+// ==========================================
+
+import type { SceneType } from "@/types";
+
+export type ScriptLength = "long" | "medium";
+
+export interface MysteryScript {
+  id: string;
+  title: string;
+  length: ScriptLength;
+  inspiration: string;
+  scene: SceneType;
+  playerCount: { min: number; max: number };
+  estimatedTime: string;
+  difficulty: "easy" | "medium" | "hard";
+  background: string;
+  characters: MysteryCharacter[];
+  rounds: MysteryRound[];
+  clues: MysteryClue[];
+  truth: string;
+  roles: { tianxiwei: string; liyitong: string; player: string };
+}
+
+export interface MysteryCharacter {
+  name: string;
+  role: string;
+  description: string;
+  secret?: string;
+  isKiller?: boolean;
+  isVictim?: boolean;
+}
+
+export interface MysteryRound {
+  round: number;
+  name: string;
+  description: string;
+  type: "investigation" | "discussion" | "voting" | "confrontation" | "reveal";
+  keyEvents: string[];
+}
+
+export interface MysteryClue {
+  id: string;
+  name: string;
+  description: string;
+  location: string;
+  importance: "key" | "supporting" | "misleading";
+  revealsTruth: string;
+}
+
+// ==========================================
+// 10个长剧本
+// ==========================================
+
+export const LONG_SCRIPTS: MysteryScript[] = [
+  {
+    id: "script_01",
+    title: "东方快车上的十二刀",
+    length: "long",
+    inspiration: "阿加莎·克里斯蒂《东方快车谋杀案》",
+    scene: "inference_club",
+    playerCount: { min: 3, max: 8 },
+    estimatedTime: "90-120分钟",
+    difficulty: "hard",
+    background: `深夜的豪华列车上，一声尖叫打破了寂静。富商雷切特被发现死在自己包厢里，身中十二刀。车门反锁、窗户紧闭，凶手仿佛凭空消失了。
+更诡异的是，每个乘客的说辞都完美无缺，但十二刀中——有些是右手砍的，有些是左手砍的，深浅不一，仿佛多人作案。
+你、田曦薇、李一桐作为推理社成员被临时请来协助调查。列车还有两小时到站，你们必须在到站前找出真相。`,
+    characters: [
+      { name: "雷切特", role: "受害者", description: "富商，性格傲慢，得罪过很多人", isVictim: true },
+      { name: "赫伯特太太", role: "美国贵妇", description: "声称整晚都在睡觉，但妆发整齐得不像刚起床", secret: "她的女儿曾被雷切特害死" },
+      { name: "阿布思诺上校", role: "英国军官", description: "沉默寡言，左手有旧伤，握拳时微微发抖", secret: "曾是赫伯特太太女儿的未婚夫" },
+      { name: "玛丽公主", role: "俄罗斯贵族", description: "高贵优雅，但提到雷切特时眼神冰冷", secret: "雷切特害死了她的教母一家" },
+      { name: "安德烈伯爵", role: "匈牙利外交官", description: "身材高大，右手掌心有茧，却声称自己不会用刀", secret: "他是玛丽公主的丈夫，两人联手" },
+      { name: "施密特", role: "德国列车员", description: "对所有乘客过分热心，知道每个包厢的备用钥匙在哪", secret: "他的父亲是雷切特手下的冤案受害者" },
+      { name: "皮埃尔", role: "法国厨师", description: "负责列车餐饮，切菜手艺精湛，随身带一套刀具", secret: "他的妹妹曾是雷切特的秘书，后来自杀了", isKiller: true },
+    ],
+    rounds: [
+      { round: 1, name: "案发调查", type: "investigation", description: "检查死者包厢，收集现场线索", keyEvents: ["发现尸体", "检查门窗锁", "采集刀伤照片"] },
+      { round: 2, name: "乘客问询", type: "investigation", description: "逐一询问每位乘客的不在场证明", keyEvents: ["赫伯特太太的手帕掉落", "上校的左手伤痕被发现"] },
+      { round: 3, name: "第一次推理", type: "discussion", description: "田曦薇提出一个大胆假设，李一桐冷静补充细节", keyEvents: ["田曦薇发现刀伤角度的异常", "李一桐注意到时间线上的矛盾"] },
+      { round: 4, name: "深入调查", type: "investigation", description: "重新搜查列车，发现隐藏的线索", keyEvents: ["在厨师车厢发现染血的围裙", "玛丽公主的秘密信件被发现"] },
+      { round: 5, name: "真相揭露", type: "confrontation", description: "集齐所有线索，揭开惊人真相——每个人都参与了谋杀", keyEvents: ["所有乘客沉默对视", "真相：十二人共同复仇"] },
+      { round: 6, name: "最终投票", type: "voting", description: "推理社三人投票决定：揭露真相还是放过他们？", keyEvents: ["李一桐沉默良久", "田曦薇罕见地犹豫了"] },
+    ],
+    clues: [
+      { id: "clue_01_01", name: "十二处刀伤分析", description: "刀伤深浅不一，角度不同。四刀来自右手、三刀来自左手、五刀方向混乱", location: "死者包厢", importance: "key", revealsTruth: "多人作案，而非单一凶手" },
+      { id: "clue_01_02", name: "未燃尽的纸条", description: "壁炉中发现半张烧毁的纸片，上面写着'阿姆斯特朗'", location: "死者包厢壁炉", importance: "key", revealsTruth: "所有乘客都与阿姆斯特朗案有关联" },
+      { id: "clue_01_03", name: "厨师的手", description: "皮埃尔双手都有菜刀老茧——他是左撇子，但刻意用右手展示刀工", location: "餐车", importance: "supporting", revealsTruth: "他在掩盖自己的惯用手" },
+      { id: "clue_01_04", name: "手帕上的泪痕", description: "赫伯特太太的手帕有最近哭过的痕迹，她说是因为洋葱——但餐车今天没有洋葱", location: "赫伯特太太包厢", importance: "supporting", revealsTruth: "她在案发前哭过" },
+      { id: "clue_01_05", name: "华丽的怀表", description: "上校的怀表背面刻着'给最爱的M'，而赫伯特太太女儿的名字是玛德琳（Madeleine）", location: "上校外套口袋", importance: "misleading", revealsTruth: "这是他和赫伯特太太女儿的爱情信物" },
+    ],
+    truth: `十二年前，一个叫阿姆斯特朗的小女孩被绑架撕票，凶手逍遥法外。那个凶手化名"雷切特"逍遥至今。
+列车上每一位乘客都与阿姆斯特朗案有关——他们是女孩的亲人、朋友、老师、律师。
+他们策划了这场集体复仇：每人刺一刀，每人都有罪，所以没有人会告发。
+这不是一个人的谋杀，这是十二个人的审判。`,
+    roles: {
+      tianxiwei: "敏锐的直觉派侦探，第一个提出'多人作案'假说，但被这个真相沉重打击",
+      liyitong: "冷静的逻辑派侦探，通过时间线和物理证据拼凑出全员参与的事实，在揭露真相时罕见地眼眶红了",
+      player: "小唐，可以选择站在正义一边揭露真相，或选择理解复仇者放过他们",
+    },
+  },
+
+  {
+    id: "script_02",
+    title: "无人岛上的审判",
+    length: "long",
+    inspiration: "阿加莎·克里斯蒂《无人生还》",
+    scene: "outdoor",
+    playerCount: { min: 3, max: 10 },
+    estimatedTime: "100-130分钟",
+    difficulty: "hard",
+    background: `十个人被邀请到一座孤岛上的豪华别墅参加聚会。暴风雨切断了所有通讯和交通。
+晚宴上，留声机播放了一段录音，指控在场每个人都是逃脱法律制裁的罪犯。
+从那天晚上开始，宾客一个接一个离奇死亡，死法对应着一首恐怖童谣。
+没有人能离开这座岛，凶手就在你们之中。`,
+    characters: [
+      { name: "瓦格雷夫法官", role: "退休法官", description: "德高望重，对法律有着偏执的信仰", secret: "他从未真正退休，这是他最后一场审判", isKiller: true },
+      { name: "维拉小姐", role: "家庭教师", description: "年轻漂亮，但提到她之前照顾的孩子时眼神闪躲", secret: "她放任雇主的孩子溺水，以获取遗产", isVictim: true },
+      { name: "隆巴德上尉", role: "雇佣兵", description: "随身带枪，声称是受邀来保护大家", secret: "在非洲曾为了钻石杀死21个土著" },
+      { name: "布伦特老夫人", role: "虔诚教徒", description: "手持圣经，但眼神冷漠，提到'罪人'时语气异常", secret: "因为道德洁癖赶走了怀孕的女佣，导致女佣自杀" },
+      { name: "麦克阿瑟将军", role: "退役将军", description: "沉默寡言，总是盯着大海出神", secret: "曾故意派妻子的情人去执行必死任务" },
+      { name: "阿姆斯特朗医生", role: "名医", description: "医术高超但酗酒，双手有时会抖", secret: "醉酒手术导致病人死亡，却掩盖了真相" },
+      { name: "布洛尔", role: "前警察/侦探", description: "自称来调查，但警察证是伪造的", secret: "在法庭上做伪证导致无辜者被判死刑" },
+      { name: "罗杰斯管家", role: "管家", description: "和妻子一起管理别墅，对主人唯命是从", secret: "和前雇主一起害死了年迈的主人以获取遗产" },
+    ],
+    rounds: [
+      { round: 1, name: "罪恶指控", type: "confrontation", description: "留声机播放指控录音，每个人都被公开了秘密", keyEvents: ["录音播放", "众人互相指责", "第一起死亡发生"] },
+      { round: 2, name: "恐慌蔓延", type: "investigation", description: "第二、第三起死亡接连发生，恐慌蔓延", keyEvents: ["发现尸体", "检查不在场证明", "田曦薇发现童谣线索"] },
+      { round: 3, name: "人人自危", type: "investigation", description: "幸存者们锁门自保，但仍有人死去", keyEvents: ["密室死亡事件", "李一桐破解童谣密码"] },
+      { round: 4, name: "最后的幸存者", type: "discussion", description: "只剩最后几人，凶手必须被找出", keyEvents: ["田曦薇和李一桐产生分歧", "关键证据浮出水面"] },
+      { round: 5, name: "法官的审判", type: "confrontation", description: "真相揭露——凶手竟然是已经'死掉'的法官本人", keyEvents: ["法官的'尸体'消失", "发现法官的审判日记"] },
+      { round: 6, name: "最终投票", type: "voting", description: "面对这个为了正义而犯罪的法官，你们如何判决？", keyEvents: ["李一桐：'正义不该以这种方式实现'", "田曦薇：'可是那些人确实有罪...'"] },
+    ],
+    clues: [
+      { id: "clue_02_01", name: "恐怖童谣", description: "每个死者的死法都能对应一首童谣的某一句。下一个会是谁？", location: "大厅钢琴上", importance: "key", revealsTruth: "凶手在按照童谣顺序杀人" },
+      { id: "clue_02_02", name: "法官的'尸体'", description: "法官被发现头部中弹死亡——但子弹角度不对，不可能是自杀", location: "法官卧室", importance: "key", revealsTruth: "法官假死，他是凶手" },
+      { id: "clue_02_03", name: "阿姆斯特朗医生的药箱", description: "药箱里的安眠药少了三颗——但只有一个人用过药", location: "医生房间", importance: "supporting", revealsTruth: "有人用安眠药协助假死" },
+      { id: "clue_02_04", name: "法官的审判日记", description: "详细记录了每个人的罪行和'判决'，字迹冷静到令人毛骨悚然", location: "书房暗格", importance: "key", revealsTruth: "法官策划了这一切" },
+    ],
+    truth: `法官瓦格雷夫身患绝症，时日无多。他决定在死前完成最后一场审判——
+审判那些法律无法制裁的罪犯。
+他邀请了九个罪人来到岛上，用连环谋杀制造恐慌，最后假死脱身。
+而更惊人的真相是：阿姆斯特朗医生是他的同谋——医生帮法官假死，法官帮医生摆脱酗酒丑闻。
+但最后，法官也按照童谣杀死了医生。因为在他眼中，医生也是罪人。`,
+    roles: {
+      tianxiwei: "敏锐发现童谣与死亡顺序的关联，第一个质疑法官之死的真实性，但被真相震撼到沉默",
+      liyitong: "冷静梳理每个人的罪行与死法对应的逻辑，发现法官假死的物理矛盾",
+      player: "小唐，在正义与复仇之间做选择",
+    },
+  },
+
+  {
+    id: "script_03",
+    title: "雪地里的白马",
+    length: "long",
+    inspiration: "东野圭吾《白夜行》",
+    scene: "rainy_cafe",
+    playerCount: { min: 3, max: 6 },
+    estimatedTime: "80-110分钟",
+    difficulty: "medium",
+    background: `大雪封城的冬夜，一具尸体在废弃工厂被发现。死者是当地有名的企业家桐原，身中数刀但现场没有任何足迹。
+与此同时，他名下的当铺里少了一件价值连城的古董——一匹白玉马。
+警方的调查陷入僵局。更奇怪的是，所有与桐原有关的人似乎都在隐瞒什么。
+你、田曦薇和李一桐作为推理社被邀介入，发现真相远比表面复杂——这起案件要追溯到二十年前。`,
+    characters: [
+      { name: "桐原亮司", role: "死者", description: "企业家，白手起家的传奇，但似乎有不可告人的过去", isVictim: true },
+      { name: "唐泽雪穗", role: "桐原的合作伙伴", description: "冷静美丽，面对桐原的死没有一丝悲伤", secret: "她和桐原从小认识，命运在二十年前就已交织" },
+      { name: "笹垣", role: "退休刑警", description: "追查桐原二十年，对案件有执念", secret: "他怀疑桐原是二十年前一起谋杀的真凶" },
+      { name: "松浦", role: "桐原的司机", description: "忠厚老实，但提到二十年前的旧事时明显紧张", secret: "他知道二十年前的真相，但收了钱封口" },
+      { name: "美佳", role: "桐原的女儿", description: "对父亲的死表现出异常的平静", secret: "她并非桐原亲生，而且知道谁杀了父亲" },
+    ],
+    rounds: [
+      { round: 1, name: "雪地密室", type: "investigation", description: "调查案发现场——没有足迹的雪地密室", keyEvents: ["检查尸体", "测量雪地", "发现消失的白玉马"] },
+      { round: 2, name: "往事追索", type: "investigation", description: "调查桐原二十年前的旧案", keyEvents: ["拜访退休刑警笹垣", "发现二十年前的失踪案卷"] },
+      { round: 3, name: "人性拷问", type: "discussion", description: "田曦薇和李一桐对真相的猜测产生分歧", keyEvents: ["田曦薇怀疑雪穗", "李一桐发现更多矛盾"] },
+      { round: 4, name: "最后的真相", type: "reveal", description: "揭开跨越二十年的悲剧", keyEvents: ["雪穗的独白", "桐原最后的保护"] },
+      { round: 5, name: "抉择", type: "voting", description: "你是揭露真相还是选择沉默？", keyEvents: ["李一桐说'有时候真相太残酷了'"] },
+    ],
+    clues: [
+      { id: "clue_03_01", name: "无足迹之谜", description: "雪地上只有一行进入足迹，没有离开的——凶手是怎么离开的？", location: "案发现场", importance: "key", revealsTruth: "凶手根本没有离开，一直在现场" },
+      { id: "clue_03_02", name: "二十年前的报纸", description: "一起银行家自杀案的报道，死者姓唐泽。他的女儿当时七岁", location: "图书馆", importance: "key", revealsTruth: "唐泽雪穗的父亲之死与桐原有关" },
+      { id: "clue_03_03", name: "白玉马", description: "当铺丢失的白玉马其实是赝品，真品早在二十年前就被卖掉了", location: "当铺", importance: "supporting", revealsTruth: "白玉马是桐原和雪穗童年唯一的信物" },
+      { id: "clue_03_04", name: "雪穗的日记", description: "日记里反复写着一句话：'我们只是想走在阳光下'", location: "雪穗家", importance: "key", revealsTruth: "她和桐原是命运共同体" },
+    ],
+    truth: `二十年前，七岁的唐泽雪穗被父亲卖给恋童癖。十一岁的桐原亮司为了保护她，杀死了自己的父亲——那个买家。
+从那天起，雪穗和桐原就成了共犯。他们的人生像两条在白夜中行走的平行线——互相支撑，却永远不能相见。
+二十年后，随着退休刑警笹垣的调查逼近，桐原选择用自己的死来保护雪穗。他故意死在废弃工厂，制造无足迹密室迷惑警方。
+雪穗在现场目睹了一切——这就是为什么没有离开的足迹。因为凶手（桐原自杀）和第二个人（雪穗观看）都没有离开。
+而白玉马，是他们童年时唯一的美好回忆——雪穗带走了它，作为最后的纪念。`,
+    roles: {
+      tianxiwei: "被这个故事深深触动。她说：'如果有人这样保护我...'，然后看向李一桐，话没说完",
+      liyitong: "全程保持冷静分析，但在听到真相后安静了很久，轻轻说：'如果在阳光下牵手，对有些人来说就是奢侈'",
+      player: "小唐，最终决定是否公开这个跨越二十年的秘密",
+    },
+  },
+
+  {
+    id: "script_04",
+    title: "山庄里的陌生人",
+    length: "long",
+    inspiration: "阿加莎·克里斯蒂《罗杰疑案》",
+    scene: "late_night_sofa",
+    playerCount: { min: 3, max: 7 },
+    estimatedTime: "70-100分钟",
+    difficulty: "medium",
+    background: `富有的乡绅罗杰被发现死在书房里，房门反锁，钥匙在他的口袋里。
+管家发誓凶手不可能离开——因为整个山庄的门窗都被锁住了。
+而更诡异的是，罗杰死前正在阅读一封来自已故前妻的信——信中提到有人正在勒索他。
+你、田曦薇和李一桐被请来调查。她们发现山庄里的每个人似乎都有秘密——包括她们自己。`,
+    characters: [
+      { name: "罗杰·阿克罗伊德", role: "死者", description: "乡绅，富有但性格孤僻。最近在调查他前妻的死因", isVictim: true },
+      { name: "谢泼德医生", role: "乡村医生", description: "罗杰的家庭医生兼好友，是最后见到罗杰的人", secret: "他知道凶手是谁——因为凶手就是他", isKiller: true },
+      { name: "帕克管家", role: "管家", description: "对山庄了如指掌，但提到罗杰的前妻时表情异常", secret: "他暗恋罗杰的前妻" },
+      { name: "弗洛拉小姐", role: "罗杰的侄女", description: "美丽但经济困难，急需继承遗产", secret: "她欠了高额赌债" },
+      { name: "布伦特先生", role: "罗杰的秘书", description: "年轻能干，但最近行为鬼鬼祟祟", secret: "他偷偷复印了罗杰的遗嘱" },
+      { name: "拉尔夫", role: "罗杰的继子", description: "与罗杰关系紧张，在案发当晚确实进入了山庄", secret: "他是来偷罗杰前妻的遗物的" },
+    ],
+    rounds: [
+      { round: 1, name: "密室之谜", type: "investigation", description: "检查反锁的书房和门窗", keyEvents: ["找到罗杰尸体", "检查门锁", "发现前妻的信"] },
+      { round: 2, name: "山庄审讯", type: "investigation", description: "逐一询问山庄里所有人", keyEvents: ["管家回避前妻话题", "弗洛拉的赌债被发现"] },
+      { round: 3, name: "医生的秘密", type: "discussion", description: "谢泼德医生的记录里存在一个十五分钟的空白", keyEvents: ["田曦薇突然站起来说'医生，你为什么在发抖？'"] },
+      { round: 4, name: "终极推理", type: "confrontation", description: "李一桐用时间线证明了医生就是凶手", keyEvents: ["李一桐：'谢泼德医生，你在案发当晚走进山庄的时候，罗杰还活着。你离开的时候，他死了。那中间的十五分钟——你在哪？'"] },
+      { round: 5, name: "真相大白", type: "reveal", description: "医生崩溃坦白，但动机出人意料", keyEvents: ["医生的自白", "最后一页日记"] },
+    ],
+    clues: [
+      { id: "clue_04_01", name: "脚踏式门锁", description: "书房门锁是脚踏式的，需要同时按上下两个按钮才能反锁", location: "书房门", importance: "key", revealsTruth: "有人在门内反锁后从窗户离开，但只有医生知道窗户也可以反锁" },
+      { id: "clue_04_02", name: "医生的十五分钟", description: "管家作证医生晚上见过罗杰，之后管家在走廊等了十五分钟才等到医生出来", location: "管家证词", importance: "key", revealsTruth: "十五分钟足够杀人并布置现场" },
+      { id: "clue_04_03", name: "前妻的信", description: "罗杰前妻的信说'有人以我的秘密勒索我'，信末署名处有被撕掉的痕迹", location: "书房", importance: "supporting", revealsTruth: "勒索者就是医生——他勒索罗杰的前妻，导致她自杀" },
+      { id: "clue_04_04", name: "医生的口误", description: "医生在描述罗杰死状时提到'他的左手握着...'——但罗杰是左撇子，死的时候右手被压在身下", location: "调查笔录", importance: "key", revealsTruth: "只有凶手才会注意到这个细节" },
+    ],
+    truth: `谢泼德医生就是凶手。他勒索罗杰的前妻，导致她自杀。罗杰收到前妻的信后开始调查这个人。
+医生得知消息后在当晚拜访罗杰，在书房里杀死了他，然后利用自己的医学知识伪造了死亡时间。
+他反锁了书房门——用脚踏式开关——然后从窗户离开。窗户也可以从外面用特殊手法反锁，这是他作为家庭医生熟知的建筑秘密。
+他的动机从未改变：掩盖自己是勒索者的真相。`,
+    roles: {
+      tianxiwei: "在医生说话时突然察觉他的紧张，直接质问，让全场惊呆",
+      liyitong: "通过逻辑拼凑完整时间线，用铁证逼医生崩溃",
+      player: "小唐，协助调查，做出最终判断",
+    },
+  },
+
+  {
+    id: "script_05",
+    title: "镜中的倒影",
+    length: "long",
+    inspiration: "东野圭吾《恶意》",
+    scene: "set",
+    playerCount: { min: 3, max: 6 },
+    estimatedTime: "90-120分钟",
+    difficulty: "hard",
+    background: `畅销推理作家日高邦彦被发现死在自家工作室，死因为后脑钝器击打。他的好友兼竞争对手野野口修是第一发现者。
+现场发现野野口的打火机，上面有他的指纹。野野口很快认罪——但他似乎隐藏着更深的秘密。
+证据、动机、不在场证明——一切都指向野野口。但他眼中有一种奇怪的神情：不是忏悔，而是得意。
+你、田曦薇和李一桐被请来协助调查。田曦薇直觉感到"没那么简单"，李一桐开始挖掘嫌疑人的过去。`,
+    characters: [
+      { name: "日高邦彦", role: "死者", description: "畅销作家，正直善良，帮助过很多人——但没人知道他为什么被恨", isVictim: true },
+      { name: "野野口修", role: "嫌疑人/作家", description: "日高的好友兼竞争对手，看似懦弱但眼中藏有寒光", secret: "他恨日高，恨到不惜毁灭自己也要毁掉日高", isKiller: true },
+      { name: "日高理惠", role: "日高的妻子", description: "悲伤但有教养，对野野口的认罪毫不意外", secret: "她知道一些关于野野口的事" },
+      { name: "加贺刑警", role: "负责刑警", description: "直觉敏锐，感觉案件不对劲但说不清", secret: "他曾经也是校园暴力的受害者" },
+      { name: "高中同学A", role: "两人共同的高中同学", description: "提到野野口时欲言又止", secret: "他目睹了野野口对日高的霸凌" },
+    ],
+    rounds: [
+      { round: 1, name: "表面证据", type: "investigation", description: "调查案发现场，收集物理证据", keyEvents: ["发现打火机", "野野口认罪", "检查工作室"] },
+      { round: 2, name: "动机调查", type: "investigation", description: "调查日高和野野口的关系", keyEvents: ["发现日高帮助过野野口", "野野口声称日高抄袭他的作品"] },
+      { round: 3, name: "谎言拆穿", type: "discussion", description: "田曦薇和李一桐发现野野口的故事漏洞", keyEvents: ["抄袭证据不成立", "时间线矛盾"] },
+      { round: 4, name: "校园往事", type: "investigation", description: "调查两人高中的关系——真相反转", keyEvents: ["发现霸凌真相", "日高一直在保护野野口"] },
+      { round: 5, name: "恶意的本质", type: "confrontation", description: "面对铁证，野野口终于说出真正的动机", keyEvents: ["野野口的自白：'我就是恨他。没有理由。'"] },
+      { round: 6, name: "沉默的审判", type: "voting", description: "田曦薇被真相刺激到暴怒，李一桐拉住她", keyEvents: ["田曦薇：'这个人渣！'", "李一桐：'小薇，冷静。审判交给法律。'"] },
+    ],
+    clues: [
+      { id: "clue_05_01", name: "日高的日记", description: "日高日记里写：'野野口又来找我了。我帮了他那么多次，但我感觉他恨我。我不明白为什么。'", location: "书房", importance: "key", revealsTruth: "日高生前已经察觉野野口的恶意" },
+      { id: "clue_05_02", name: "高中毕业照", description: "照片里日高和野野口站在一起——野野口的手放在日高肩上，看起来亲密。但仔细看，日高的笑容是僵硬的", location: "野野口家", importance: "supporting", revealsTruth: "他们高中并非好友，日高是被霸凌者" },
+      { id: "clue_05_03", name: "被修改的手稿", description: "日高新书的手稿上被人用红笔修改了多处——笔迹经鉴定是野野口的。修改的理由全都是'不够好'", location: "日高的工作室", importance: "key", revealsTruth: "野野口嫉妒日高的才华到病态的程度" },
+      { id: "clue_05_04", name: "野野口的手记", description: "野野口自己的笔记本最后一页写着：'就算我的人生毁了，也要让所有人以为日高才是那个恶人'", location: "野野口的包里", importance: "key", revealsTruth: "他的动机就是纯粹的恶意" },
+    ],
+    truth: `高中时，野野口修经常欺负日高邦彦。但日高从来没有报复过，反而一直帮助他——介绍出版社、推荐他的作品。
+野野口无法忍受这种单方面的恩惠。日高的善良让他自惭形秽，日高的成功让他嫉妒到发疯。
+于是他杀死了日高，然后编造了一个故事：说自己被日高剽窃、被威胁，想要毁掉日高的名誉。
+他的动机就是纯粹的恶意——野野口修恨日高邦彦，不是因为他做了什么，而是因为他太好了。`,
+    roles: {
+      tianxiwei: "被这个真相气到发抖：'这种人就是世界上最恶心的人——你对他好，他却恨你！'",
+      liyitong: "罕见地露出冰冷表情：'恶意没有理由，所以更可怕。小薇，我们保护好彼此就好。'",
+      player: "小唐，见证人性的至暗面",
+    },
+  },
+
+  {
+    id: "script_06",
+    title: "血字的研究",
+    length: "long",
+    inspiration: "柯南·道尔《血字的研究》",
+    scene: "inference_club",
+    playerCount: { min: 3, max: 6 },
+    estimatedTime: "70-100分钟",
+    difficulty: "medium",
+    background: `空屋中发现一具男尸，墙上用血写着一个德文单词：'RACHE'（复仇）。
+死者身上没有任何伤口，口袋里有一枚结婚戒指——不是他的尺寸。
+苏格兰场束手无策。你、田曦薇和李一桐受邀前往伦敦协助调查。田曦薇说这案子让她想到推理社的经历，李一桐则默默开始检查每一个细节。`,
+    characters: [
+      { name: "伊诺克·德雷伯", role: "死者", description: "美国人，来到伦敦后三天就死了", isVictim: true },
+      { name: "杰弗逊·霍普", role: "陌生美国人", description: "强壮、沉默，眼神中充满悲伤和愤怒", secret: "他为爱复仇，毒死了德雷伯", isKiller: true },
+      { name: "斯坦杰森", role: "德雷伯的秘书", description: "失踪了——他死了，但尸体还没被发现", secret: "他也是霍普的目标" },
+      { name: "露西", role: "已故女子", description: "不在现场，但在每个人的回忆中", secret: "她是霍普的未婚妻，被德雷伯和斯坦杰森逼死" },
+      { name: "格雷格森警探", role: "苏格兰场警探", description: "想破案但缺乏方法", secret: "无" },
+    ],
+    rounds: [
+      { round: 1, name: "空屋调查", type: "investigation", description: "仔细检查案发现场", keyEvents: ["发现RACHE血字", "找到结婚戒指", "发现毒药痕迹"] },
+      { round: 2, name: "追踪美国人", type: "investigation", description: "调查德雷伯的过去", keyEvents: ["找到德雷伯的旅店", "发现他和斯坦杰森的关系"] },
+      { round: 3, name: "盐湖城往事", type: "discussion", description: "追溯到美国犹他州的往事", keyEvents: ["发现露西的故事", "田曦薇拳头攥紧了"] },
+      { round: 4, name: "复仇者的谜底", type: "confrontation", description: "找到霍普，听完他的故事", keyEvents: ["霍普的全盘坦白", "李一桐：'RACHE不是愤怒，是悲伤'"] },
+      { round: 5, name: "审判", type: "voting", description: "在法庭上，你们会为霍普求情吗？", keyEvents: ["田曦薇：'如果是我，我也会这么做'"] },
+    ],
+    clues: [
+      { id: "clue_06_01", name: "RACHE血字", description: "墙上用血写的德文单词——不是'Rachel'（瑞秋），而是'Rache'（复仇）", location: "案发现场墙上", importance: "key", revealsTruth: "凶手在宣告他的动机" },
+      { id: "clue_06_02", name: "结婚戒指", description: "戒指内侧刻着日期，是六年前的", location: "死者口袋", importance: "key", revealsTruth: "戒指是霍普的——他故意留在现场作为信号" },
+      { id: "clue_06_03", name: "毒药残余", description: "死者嘴唇和指甲发青，有苦杏仁味", location: "尸体", importance: "supporting", revealsTruth: "氰化物中毒" },
+      { id: "clue_06_04", name: "露西的信", description: "在霍普的行李中找到一封六年前的信：'我等不到你了。他们在逼我。'", location: "霍普住处", importance: "key", revealsTruth: "露西被德雷伯强行娶走，最终病死" },
+    ],
+    truth: `二十年前，露西和霍普相爱。但摩门教长老德雷伯强行娶走了露西。
+露西在绝望中病死。霍普花了二十年追踪德雷伯和斯坦杰森来到伦敦。
+他给德雷伯两颗药丸——一颗有毒一颗无毒——让他自己选择。德雷伯选到了有毒的。
+霍普在墙上写'RACHE'——不是愤怒，是二十年的悲伤和思念。`,
+    roles: {
+      tianxiwei: "眼眶红了：'二十年...如果是桐姐被人这样欺负，我也会追到天涯海角'",
+      liyitong: "安静很久后说：'爱情可以让一个人走很远很远的路'",
+      player: "决定是否在法庭上为霍普求情",
+    },
+  },
+
+  {
+    id: "script_07",
+    title: "ABC的死亡预告",
+    length: "long",
+    inspiration: "阿加莎·克里斯蒂《ABC谋杀案》",
+    scene: "inference_club",
+    playerCount: { min: 3, max: 8 },
+    estimatedTime: "80-110分钟",
+    difficulty: "medium",
+    background: `一封署名"ABC"的信被寄到苏格兰场，预告将在安多弗（Andover）发生谋杀。第二天，姓名为A.A.的老妇人死了。
+然后是第二封信：贝克斯希尔（Bexhill），死者B.B.。第三封：彻斯特（Churston），死者C.C.。
+每具尸体旁边都放着一本《ABC铁路指南》。
+这看起来像一个按字母顺序杀人的连环杀手——但你、田曦薇和李一桐发现，其中一起谋杀的性质和另两起完全不同。`,
+    characters: [
+      { name: "A.A.阿斯彻", role: "第一位死者", description: "安多弗的烟草店老板娘，温和善良，无仇人", isVictim: true },
+      { name: "B.B.巴纳德", role: "第二位死者", description: "贝克斯希尔的女招待，年轻漂亮", isVictim: true },
+      { name: "C.C.克拉克", role: "第三位死者", description: "彻斯特的富商——他是真正的目标", isVictim: true },
+      { name: "富兰克林·克拉克", role: "C.C.的弟弟", description: "在哥哥死后继承全部遗产，表现异常", secret: "他是真正的凶手", isKiller: true },
+      { name: "亚历山大·卡斯特", role: "被陷害者", description: "有精神病史，住在每起谋杀发生地附近，被警方锁定为嫌疑人", secret: "他是被精心嫁祸的替罪羊" },
+      { name: "唐纳德", role: "克拉克家的管家", description: "知道克拉克兄弟之间的秘密，但收了钱选择沉默", secret: "他知道富兰克林有罪" },
+    ],
+    rounds: [
+      { round: 1, name: "第一封信", type: "investigation", description: "调查A.A.被杀案", keyEvents: ["找到ABC铁路指南", "发现死者无仇人"] },
+      { round: 2, name: "连环杀人", type: "investigation", description: "第二、三起案件接连发生", keyEvents: ["发现C.C.的死亡方式和前两起不同", "李一桐：'不对。这一刀和前面的不一样'"] },
+      { round: 3, name: "替罪羊", type: "discussion", description: "警方锁定精神病人卡斯特，但田曦薇不信", keyEvents: ["田曦薇：'他连鞋带都不会系，怎么可能写出这么缜密的信？'"] },
+      { round: 4, name: "真正的目标", type: "investigation", description: "深入调查C.C.克拉克的关系网", keyEvents: ["发现遗产纠纷", "管家的沉默被打破"] },
+      { round: 5, name: "揭露", type: "confrontation", description: "凶手浮出水面", keyEvents: ["富兰克林的破绽", "李一桐的绝杀推理"] },
+    ],
+    clues: [
+      { id: "clue_07_01", name: "ABC铁路指南", description: "每具尸体旁边都有一本。但C.C.旁边的那本是全新的——前两本是旧的", location: "每个案发现场", importance: "key", revealsTruth: "前两本是凶手自己准备的，第三本是随手买的" },
+      { id: "clue_07_02", name: "刀法差异", description: "A.A.和B.B.的刀伤干净利落。C.C.的刀伤杂乱、深浅不一", location: "法医报告", importance: "key", revealsTruth: "前两起是有经验的杀手所为，第三起是外行模仿" },
+      { id: "clue_07_03", name: "富兰克林的衬衫", description: "案发当晚他的衬衫袖口有血迹——他说是刮胡子弄的", location: "克拉克家", importance: "key", revealsTruth: "那是C.C.的血" },
+      { id: "clue_07_04", name: "卡斯特的药瓶", description: "卡斯特的精神病药物在第三起案件前被人换成了维生素", location: "卡斯特住处", importance: "supporting", revealsTruth: "有人故意让他行为异常以嫁祸" },
+    ],
+    truth: `富兰克林·克拉克想要继承哥哥的巨额遗产。他策划了这起"连环ABC谋杀案"——
+杀了两个无辜的人A.A.和B.B.作为掩护，让人以为这是连环杀手随机作案，
+然后杀死真正的目标C.C.（他的哥哥），让这看起来只是连环杀手中的一环。
+他嫁祸给精神病人卡斯特——故意给卡斯特换药、在每起案件前把卡斯特引到案发城市附近。
+李一桐通过刀法差异发现了破绽。田曦薇通过直觉看出了卡斯特不是真正的凶手。
+最恐怖的不是连环杀手——而是有人为了自己的利益，制造了连环杀手。`,
+    roles: {
+      tianxiwei: "第一个为被冤枉的卡斯特发声：'你们抓住的这个人比谁都害怕！他根本不知道发生了什么！'",
+      liyitong: "通过法医报告里的刀法差异锁定了真凶，用四两拨千斤的方式推翻了整个连环杀人理论",
+      player: "参与调查，帮助锁定了关键证据",
+    },
+  },
+
+  {
+    id: "script_08",
+    title: "沉默的证人",
+    length: "long",
+    inspiration: "阿加莎·克里斯蒂《死亡约会》+《沉默的证人》",
+    scene: "late_night_sofa",
+    playerCount: { min: 3, max: 6 },
+    estimatedTime: "70-100分钟",
+    difficulty: "medium",
+    background: `富有的艾米丽老夫人被发现死在自家客厅，死因为过量胰岛素注射。她有糖尿病，但她的胰岛素注射器被人动了手脚。
+她的四个子女都有动机——老妇人是个控制狂，用遗产牢牢控制着每个人的生活。
+但唯一的目击者是小狗鲍比——它蹲在死去的女主人旁边，对着其中一个子女低吼。
+你、田曦薇和李一桐要解开这个家庭悲剧背后的秘密。`,
+    characters: [
+      { name: "艾米丽老夫人", role: "死者", description: "控制欲极强的母亲，用遗产威胁子女按她的意志生活", isVictim: true },
+      { name: "查尔斯", role: "长子", description: "看似和善，但急需用钱——他被母亲阻止了婚事", secret: "他确实想杀母亲，但有人比他更快" },
+      { name: "特蕾莎", role: "长女", description: "独立强势，最像母亲，和她冲突最激烈", secret: "她在母亲死前最后一次见到她", isKiller: true },
+      { name: "大卫", role: "次子", description: "沉默寡言，被母亲半软禁在家中", secret: "他在事发当晚偷听到了关键对话" },
+      { name: "洛林", role: "小女儿", description: "温柔善良，是唯一真心爱母亲的孩子", secret: "她发现了一个秘密但不敢说" },
+      { name: "波洛式人物", role: "家庭医生", description: "看出了不对劲，但不愿意直接指控", secret: "他知道是谁——因为他检验了药瓶" },
+    ],
+    rounds: [
+      { round: 1, name: "药瓶之谜", type: "investigation", description: "检查胰岛素注射器和药瓶", keyEvents: ["发现药瓶被掉包", "小狗的异常行为"] },
+      { round: 2, name: "子女问询", type: "investigation", description: "逐一询问四个子女", keyEvents: ["查尔斯的紧张", "特蕾莎的冷静", "大卫的沉默"] },
+      { round: 3, name: "小女儿的秘密", type: "discussion", description: "洛林的犹豫引起李一桐的注意", keyEvents: ["李一桐温柔地引导洛林开口", "洛林：'那天晚上...我听到妈妈和姐姐在吵架'"] },
+      { round: 4, name: "真相拼图", type: "confrontation", description: "四个子女对质，真相浮出", keyEvents: ["特蕾莎：'她毁了我的人生！'", "查尔斯：'我只是想把药换了...我没想让她死...'"] },
+      { round: 5, name: "姐妹对峙", type: "reveal", description: "最惊人的真相出现", keyEvents: ["洛林对特蕾莎说：'可是妈妈打算今天改遗嘱——把一切都给你'", "特蕾莎崩溃"] },
+    ],
+    clues: [
+      { id: "clue_08_01", name: "掉包的药瓶", description: "胰岛素瓶的标签被撕掉后重新贴上，贴得歪歪扭扭", location: "客厅茶几", importance: "key", revealsTruth: "有人在慌乱中掉了包" },
+      { id: "clue_08_02", name: "小狗的反应", description: "小狗鲍比对查尔斯狂吠，但对特蕾莎摇尾巴——因为查尔斯的药瓶有奇怪气味，而特蕾莎经常喂它", location: "案发现场", importance: "misleading", revealsTruth: "小狗可以识别不同人的气味，但不一定指认凶手" },
+      { id: "clue_08_03", name: "改写的遗嘱", description: "律师抽屉里有一份新遗嘱草案，日期是案发当日下午——将大部分遗产留给特蕾莎", location: "律师办公室", importance: "key", revealsTruth: "母亲最后选择了最像自己的女儿" },
+      { id: "clue_08_04", name: "查尔斯的药", description: "查尔斯房间里有安眠药的处方——他在案发前买了双倍剂量", location: "查尔斯房间", importance: "supporting", revealsTruth: "查尔斯计划给母亲下安眠药后掉包胰岛素——但特蕾莎先下手了" },
+    ],
+    truth: `母亲艾米丽多年来用遗产控制四个孩子的人生。查尔斯想结婚被阻，特蕾莎想出国被拦，大卫被半软禁。
+案发当天，母亲召集四个孩子宣布要改遗嘱。查尔斯提前买药想动手，但在动手前被母亲的另一个电话打断了。
+而特蕾莎——这个最像母亲的女儿——在得知母亲无论如何都不会放她走之后，亲手换掉了胰岛素瓶。
+最残酷的真相是：律师后来证明，母亲那天下午去律师那里其实是想把大部分遗产留给特蕾莎。
+特蕾莎杀死了唯一真正认可她的人——她的母亲。而母亲认可她的原因，恰恰是因为她最像自己。`,
+    roles: {
+      tianxiwei: "被家庭的残酷真相震撼：'太讽刺了...她杀了唯一爱她的人'",
+      liyitong: "轻轻说：'有些家庭的爱，是用控制伪装的。而有些控制，是用爱伪装的。'",
+      player: "小唐，解开这个扭曲的家庭悲剧",
+    },
+  },
+
+  {
+    id: "script_09",
+    title: "古堡幽灵",
+    length: "long",
+    inspiration: "柯南·道尔《巴斯克维尔的猎犬》+ 约翰·狄克森·卡尔《三口棺材》",
+    scene: "late_night_sofa",
+    playerCount: { min: 3, max: 7 },
+    estimatedTime: "80-110分钟",
+    difficulty: "medium",
+    background: `苏格兰高地的巴斯克维尔古堡发生了离奇事件。查尔斯爵士死在庄园外的紫杉树林中，尸体旁边有巨大的猎犬爪印。
+传说中巴斯克维尔家族被一只地狱猎犬诅咒——但查尔斯爵士是自然死亡还是被谋杀？
+他的侄子、继承人亨利爵士也受到了死亡威胁。有人寄来一封用报纸剪字拼成的恐吓信。
+更诡异的是——有人在古堡附近看到了一个巨大的发光生物。
+你、田曦薇和李一桐来到这座笼罩在迷雾中的古堡，田曦薇说"这怎么像鬼片"，李一桐已经在看地图了。`,
+    characters: [
+      { name: "查尔斯爵士", role: "第一死者", description: "死在树林中，表情惊恐——他看到了什么？", isVictim: true },
+      { name: "亨利爵士", role: "继承人", description: "从加拿大赶来继承遗产，不知道自己身处危险", secret: "他其实是冒牌货" },
+      { name: "斯台普", role: "邻居博物学家", description: "热情友好，对沼泽和古堡周边的动植物了如指掌", secret: "他就是凶手——真正的巴斯克维尔后人", isKiller: true },
+      { name: "巴里莫尔", role: "古堡管家", description: "沉默寡言，晚上会在阁楼打信号灯", secret: "他的妻弟是逃犯，藏在沼泽里" },
+      { name: "莫蒂默医生", role: "家庭医生", description: "第一个发现查尔斯尸体的人，坚持这是个谜案", secret: "他在隐瞒查尔斯真正的死因" },
+      { name: "贝里尔", role: "斯台普的\"妹妹\"", description: "美丽而忧伤，私下警告亨利离开", secret: "她不是斯台普的妹妹，而是被胁迫的妻子" },
+    ],
+    rounds: [
+      { round: 1, name: "猎犬传说", type: "investigation", description: "调查查尔斯爵士死因和猎犬传说", keyEvents: ["检查案发现场", "找到巨型爪印", "发现恐吓信"] },
+      { round: 2, name: "古堡的秘密", type: "investigation", description: "深入探索古堡和沼泽", keyEvents: ["发现管家在发信号", "沼泽里的逃犯", "田曦薇被突然出现的巨大黑影吓到抓住李一桐"] },
+      { round: 3, name: "发光的怪物", type: "discussion", description: "李一桐冷静分析发光生物的真相", keyEvents: ["李一桐：'如果猎犬身上涂了磷，就会发光'", "田曦薇：'...所以是人干的！'"] },
+      { round: 4, name: "冒牌继承者", type: "confrontation", description: "揭露亨利是假的，斯台普才是真的", keyEvents: ["斯台普露出真面目", "贝里尔的背叛"] },
+      { round: 5, name: "沼泽决战", type: "reveal", description: "在迷雾沼泽中与凶手最终对决", keyEvents: ["田曦薇挡在李一桐前面", "斯台普逃入沼泽——再也没出来"] },
+    ],
+    clues: [
+      { id: "clue_09_01", name: "涂磷的猎犬", description: "树林中发现磷光物质的残留——不是超自然现象，是人为涂抹的", location: "树林中", importance: "key", revealsTruth: "发光的巨犬是被人为改造的大型犬" },
+      { id: "clue_09_02", name: "家族画像", description: "古堡画廊中有一幅巴斯克维尔先祖的画像——和斯台普长得一模一样", location: "古堡画廊", importance: "key", revealsTruth: "斯台普是真正的巴斯克维尔后人" },
+      { id: "clue_09_03", name: "管家的信号灯", description: "管家每晚在阁楼打信号，他在给沼泽里藏着的逃犯送食物", location: "古堡阁楼", importance: "misleading", revealsTruth: "和主案无关，但制造了恐怖氛围" },
+      { id: "clue_09_04", name: "贝里尔的警告信", description: "偷偷塞给亨利的纸条：'快离开这里，你不知道你面对的是什么'", location: "亨利的口袋", importance: "supporting", revealsTruth: "斯台普的妻子在暗中帮助亨利" },
+    ],
+    truth: `斯台普是巴斯克维尔家族真正的后人，查尔斯爵士的远亲。按照法律，他才是古堡和遗产的合法继承人。
+但他没有证据证明自己的身份——而查尔斯爵士和亨利爵士（假的）站在他的对立面。
+于是他用巴斯克维尔猎犬的传说来杀人：他养了一只巨型獒犬，在它身上涂抹磷粉，训练它在夜晚攻击穿着特定衣服的人。
+查尔斯爵士就是这样在恐惧中心脏病发作而死——他看到了发光的巨犬，被活活吓死。
+而那个冒牌亨利，是斯台普雇来的演员——用来引诱真正的亨利并杀死他。`,
+    roles: {
+      tianxiwei: "在迷雾沼泽中经历恐怖瞬间后反常地安静，跟李一桐说：'以后你不准一个人去沼泽'",
+      liyitong: "用科学解释打破鬼怪传说：'磷+大型犬=发光的猎犬。没有诅咒，只有人心。'",
+      player: "跟随她们探索古堡，决定是否帮助真正的继承人斯台普",
+    },
+  },
+
+  {
+    id: "script_10",
+    title: "溺水的真相",
+    length: "long",
+    inspiration: "东野圭吾《祈祷落幕时》+ 凑佳苗《告白》",
+    scene: "rainy_cafe",
+    playerCount: { min: 3, max: 6 },
+    estimatedTime: "90-120分钟",
+    difficulty: "hard",
+    background: `一位年轻的单亲妈妈被发现溺死在浴缸里，初步判定为自杀。但她十二岁的女儿坚定地说"妈妈不会丢下我的"。
+刑警在调查中发现，这位母亲生前最后联系过的人是女儿的班主任——一个在所有人眼中完美无缺的女教师。
+女孩说："那天晚上老师来家访了。"
+老师说："我只是来看看孩子的学习情况，然后就走了。"
+但你、田曦薇和李一桐在老师家里发现了一本日记——里面详细记录了另一个孩子的死亡。`,
+    characters: [
+      { name: "浅居", role: "死者/单亲妈妈", description: "独自抚养女儿，性格坚韧，绝不会自杀", isVictim: true },
+      { name: "森口老师", role: "班主任", description: "完美无缺，冷静到可怕", secret: "她的儿子也死了——是被两个学生害死的", isKiller: true },
+      { name: "小爱", role: "死者的女儿/12岁", description: "坚信妈妈不会自杀，拒绝接受官方结论", secret: "她看到了那天晚上的一些事但不确定" },
+      { name: "渡边", role: "学校教导主任", description: "一直想压下这件事，怕影响学校声誉", secret: "他知道森口老师的儿子是怎么死的" },
+      { name: "刑警", role: "办案刑警", description: "有多年经验，感觉此案不对劲", secret: "他自己的女儿也是被校园霸凌自杀的" },
+    ],
+    rounds: [
+      { round: 1, name: "不是自杀", type: "investigation", description: "调查案发现场，找疑问点", keyEvents: ["发现浴缸水位异常", "小爱说妈妈不会游泳——为什么会选择溺水自杀？"] },
+      { round: 2, name: "完美老师", type: "investigation", description: "调查森口老师的背景", keyEvents: ["发现她儿子的死亡", "渡边主任的遮掩"] },
+      { round: 3, name: "两个故事", type: "discussion", description: "田和李的推理碰撞", keyEvents: ["田曦薇：'这老师有问题'", "李一桐：'可是动机呢？她为什么要杀学生的母亲？'"] },
+      { round: 4, name: "日记", type: "investigation", description: "深入调查森口的日记", keyEvents: ["发现杀害她儿子的两个学生", "发现浅居的女儿小爱——和其中一个学生关系密切"] },
+      { round: 5, name: "复仇的理由", type: "confrontation", description: "森口老师终于说出全部真相", keyEvents: ["森口：'那个女人的儿子害死了我的儿子。我要让她也体会失去孩子的感觉。'"] },
+      { round: 6, name: "循环", type: "voting", description: "复仇的连锁——谁来打破？", keyEvents: ["田曦薇罕见地沉默", "李一桐：'可是...那个母亲是无辜的啊。'" ] },
+    ],
+    clues: [
+      { id: "clue_10_01", name: "浴缸水位", description: "如果是在浴缸里溺亡，水位应该在胸口附近。但现场水位在颈部——这意味着有人在死者失去意识后持续加水", location: "案发现场", importance: "key", revealsTruth: "这不是自杀，是他杀" },
+      { id: "clue_10_02", name: "森口的日记", description: "日记记录了她儿子被两个同学长期霸凌至死的经过。最后几页被撕掉了", location: "森口家中", importance: "key", revealsTruth: "被撕掉的是复仇计划" },
+      { id: "clue_10_03", name: "小爱的画", description: "小爱画了一幅画：一个女人在门口，妈妈在哭。画的日期是案发当晚", location: "小爱的书包", importance: "supporting", revealsTruth: "森口老师确实去过浅居家" },
+      { id: "clue_10_04", name: "被丢弃的U盘", description: "渡边主任丢弃的U盘里有学校霸凌的内部调查报告——但从未公开", location: "学校垃圾桶", importance: "key", revealsTruth: "学校掩盖了霸凌事件" },
+    ],
+    truth: `森口老师的儿子在学校被两个学生长期霸凌，最终自杀。学校掩盖了真相，两个学生没有受到任何惩罚。
+其中一个学生的母亲就是浅居——她虽然知道儿子做了坏事，但选择了包庇。
+森口老师用了两年时间策划复仇。她应聘成为浅居女儿的班主任，等待时机。
+案发当晚，她以家访为名来到浅居家，在茶中下了安眠药，然后将失去意识的浅居拖入浴缸。
+她要让浅居的女儿也体会失去母亲的感觉。复仇完成了——但新的悲剧也开始了。`,
+    roles: {
+      tianxiwei: "被复杂的道德困境震撼：'我不知道该怎么判断...两边都是受害者，两边都是加害者'",
+      liyitong: "安静地说：'仇恨是一条链，每一个环节都觉得自己是正义的。但这条链永远不会自己断掉。'",
+      player: "小唐，面对无法简单定罪的真相",
+    },
+  },
+];
+
+// ==========================================
+// 5个中剧本
+// ==========================================
+
+export const MEDIUM_SCRIPTS: MysteryScript[] = [
+  {
+    id: "script_m01",
+    title: "十字路口的抉择",
+    length: "medium",
+    inspiration: "希区柯克《火车怪客》+ 交换杀人概念",
+    scene: "home",
+    playerCount: { min: 3, max: 5 },
+    estimatedTime: "45-60分钟",
+    difficulty: "easy",
+    background: `两个陌生人在火车上相遇。A说："我希望我妻子消失。"B说："我也希望我父亲消失。"
+A开玩笑似的说："那——我们交换？你杀了我妻子，我杀了你父亲。警察追查动机的时候，我们都不会被怀疑。"
+这个玩笑变成了真实：A的妻子死了，B的父亲也死了。但真相远比表面复杂——其中一个人根本没有动手。`,
+    characters: [
+      { name: "盖伊", role: "A/建筑师", description: "想离婚却怕妻子的律师毁了他", secret: "他真的动了杀心" },
+      { name: "布鲁诺", role: "B/社交名流", description: "富二代，想继承遗产但父亲太健康了", secret: "他已经杀人了" },
+      { name: "安", role: "盖伊的妻子", description: "强势的律师，拒绝离婚", isVictim: true },
+      { name: "布鲁诺的父亲", role: "老布鲁诺", description: "冷酷的富豪", isVictim: true },
+    ],
+    rounds: [
+      { round: 1, name: "双重命案", type: "investigation", description: "调查两起可疑死亡", keyEvents: ["安的死亡现场", "老布鲁诺的死亡现场"] },
+      { round: 2, name: "交换杀人理论", type: "discussion", description: "田曦薇提出交换杀人假说", keyEvents: ["田曦薇：'这两个人互相有不在场证明！'"] },
+      { round: 3, name: "谎言", type: "confrontation", description: "发现其中一个凶手根本没有杀人", keyEvents: ["盖伊崩溃：'我以为他开玩笑的！我没动手！'"] },
+    ],
+    clues: [
+      { id: "clue_m01_01", name: "完美的交叉不在场证明", description: "两人在对方亲人的死亡时间都有不在场证明", location: "调查记录", importance: "key", revealsTruth: "交换杀人计划" },
+      { id: "clue_m01_02", name: "电话记录", description: "布鲁诺在安的死亡时间接到了盖伊的电话", location: "电信记录", importance: "misleading", revealsTruth: "布鲁诺故意给自己制造不在场证明" },
+      { id: "clue_m01_03", name: "盖伊的衬衫", description: "案发当晚的衣服是干净的——如果真的杀了人不会这么干净", location: "盖伊家", importance: "key", revealsTruth: "盖伊没有动手" },
+    ],
+    truth: `布鲁诺将玩笑当真，杀了盖伊的妻子，然后胁迫盖伊杀自己的父亲。但盖伊做不到。
+布鲁诺只好自己杀了父亲，嫁祸给盖伊——反正交换杀人的线索都指向两个人。`,
+    roles: {
+      tianxiwei: "快速锁定交换杀人逻辑",
+      liyitong: "发现盖伊衬衫的细节为他洗清嫌疑",
+      player: "做出最终判断",
+    },
+  },
+
+  {
+    id: "script_m02",
+    title: "最后的晚餐",
+    length: "medium",
+    inspiration: "东野圭吾《圣女的救济》",
+    scene: "kitchen",
+    playerCount: { min: 3, max: 5 },
+    estimatedTime: "40-60分钟",
+    difficulty: "medium",
+    background: `完美的婚姻在一个晚上崩塌。丈夫被发现死在餐桌上，最后一餐是他的妻子亲手做的。
+法医鉴定死因为砒霜中毒——但妻子不可能在饭菜中下毒，因为她和丈夫吃了同一桌菜。
+唯一的区别是：丈夫喝了自己泡的咖啡——但他泡咖啡的时候妻子就在旁边。
+你、田曦薇和李一桐要解开这个近乎完美的毒杀之谜。`,
+    characters: [
+      { name: "绫音", role: "妻子", description: "完美主妇，冷静到让人觉得不对劲", secret: "她用了一年时间布置这个毒杀", isKiller: true },
+      { name: "义孝", role: "丈夫", description: "出轨的企业家，想要离婚", isVictim: true },
+      { name: "若山", role: "义孝的情人", description: "年轻女子，怀孕了——义孝要和她结婚", secret: "她知道绫音发现了" },
+    ],
+    rounds: [
+      { round: 1, name: "不是食物", type: "investigation", description: "排除食物中的毒", keyEvents: ["检测所有食物", "妻子也吃了同样的菜"] },
+      { round: 2, name: "咖啡", type: "investigation", description: "调查咖啡中毒的可能", keyEvents: ["李一桐：'咖啡壶里没有毒。那毒药是在哪里？'"] },
+      { round: 3, name: "一年前的布置", type: "reveal", description: "揭开真相", keyEvents: ["绫音：'我在一年前就把毒下好了。你们只是今天才找到尸体。'"] },
+    ],
+    clues: [
+      { id: "clue_m02_01", name: "咖啡壶", description: "咖啡壶无毒素残留。水来自厨房水龙头——也没毒", location: "厨房", importance: "key", revealsTruth: "毒不在这顿饭里" },
+      { id: "clue_m02_02", name: "净水器滤芯", description: "净水器的滤芯更换记录显示：一年前的某一天，妻子特意更换了滤芯", location: "厨房水槽下", importance: "key", revealsTruth: "毒下在滤芯里——一年前就下好了" },
+      { id: "clue_m02_03", name: "妻子的日记", description: "一年前的日记：'今天换了滤芯。从现在开始，每一天都可能是他的最后一天。我给了他一年的机会'", location: "卧室", importance: "key", revealsTruth: "妻子在等丈夫回心转意" },
+    ],
+    truth: `一年前，妻子绫音发现丈夫出轨后，在净水器的滤芯里下了砒霜。
+但她没有立刻杀死丈夫。她有整整一年的时间——每一天，丈夫都可能喝下有毒的水。
+这一年里，她给了他无数次机会：只要他回心转意，她就会换掉滤芯。
+但丈夫没有。今天他提出了离婚。今天，她决定不再等待。
+她泡了咖啡——用净水器里的水。丈夫喝了。死了。
+而她喝的是瓶装水——从一开始就没打算和他一起喝。`,
+    roles: {
+      tianxiwei: "震撼：'她用一年时间给他机会...'",
+      liyitong: "'最可怕的不是毒药，是她给了他三百六十五次回头机会，他一次都没有'",
+      player: "审判一段扭曲的爱",
+    },
+  },
+
+  {
+    id: "script_m03",
+    title: "蓝色房间",
+    length: "medium",
+    inspiration: "江户川乱步《D坂杀人事件》",
+    scene: "home",
+    playerCount: { min: 3, max: 5 },
+    estimatedTime: "35-50分钟",
+    difficulty: "easy",
+    background: `古董店老板死在自家仓库的蓝色房间里，门从内反锁，唯一的窗户太小了，人不可能通过。
+现场只有死者一个人。他身边散落着几件古董——其中有个蓝色的瓷瓶，和房间的蓝色墙纸融为一体。
+这看起来像一个不可能的密室杀人——或者根本没有凶手。你、田曦薇和李一桐被请来解开这个谜。`,
+    characters: [
+      { name: "古董店老板", role: "死者", description: "吝啬的商人，最近买了一批来路不明的古董", isVictim: true },
+      { name: "学徒", role: "店里的年轻学徒", description: "对老板言听计从，但有秘密", secret: "他发现了老板的秘密交易" },
+      { name: "文物贩子", role: "供货商", description: "地下文物交易者", secret: "他在寻找一件被老板私藏的宝贝" },
+    ],
+    rounds: [
+      { round: 1, name: "不可能的密室", type: "investigation", description: "检查蓝色房间的谜题", keyEvents: ["门内反锁", "窗户太小"] },
+      { round: 2, name: "蓝色瓷瓶", type: "discussion", description: "田曦薇被瓷瓶吸引了注意", keyEvents: ["田曦薇：'这个瓷瓶...为什么放在这么显眼的地方'"] },
+      { round: 3, name: "真相", type: "reveal", description: "密室破解", keyEvents: ["学徒承认一切"] },
+    ],
+    clues: [
+      { id: "clue_m03_01", name: "门闩的划痕", description: "门闩上有细线摩擦的痕迹——有人从外面用线拉动门闩制造了密室假象", location: "蓝色房间门", importance: "key", revealsTruth: "密室是伪造的" },
+      { id: "clue_m03_02", name: "蓝色瓷瓶", description: "瓶子底部有泥土痕迹和编号——是刚出土的文物", location: "房间角落", importance: "key", revealsTruth: "老板在走私文物" },
+      { id: "clue_m03_03", name: "学徒的伤痕", description: "学徒手腕有被绑过的勒痕", location: "学徒手臂", importance: "key", revealsTruth: "学徒曾被老板虐待" },
+    ],
+    truth: `古董店老板走私文物。学徒发现了秘密，被老板关在仓库里。学徒挣扎中推倒了老板——老板的头撞在瓷瓶上当场死亡。
+学徒害怕被定罪，制造了密室假象：从窗户逃走，然后用细线拉动门闩从内侧反锁。
+蓝色瓷瓶——既是凶器，也是罪证。`,
+    roles: {
+      tianxiwei: "发现蓝瓶的异常位置",
+      liyitong: "从门闩痕迹破解密室",
+      player: "决定是否放学徒一马",
+    },
+  },
+
+  {
+    id: "script_m04",
+    title: "被藏起来的画",
+    length: "medium",
+    inspiration: "阿加莎·克里斯蒂《五只小猪》",
+    scene: "set",
+    playerCount: { min: 3, max: 5 },
+    estimatedTime: "40-60分钟",
+    difficulty: "medium",
+    background: `十六年前，画家艾米斯被毒死在自己的工作室。他的妻子卡洛琳被判有罪，死于狱中。
+十六年后，卡洛琳的女儿收到一封匿名信：'你的母亲是无辜的。'
+五位当年与案件有关的人被重新召集——每人手中都有一个版本的真相。
+你、田曦薇和李一桐要在五个相互矛盾的证词中找出唯一的真相。`,
+    characters: [
+      { name: "艾米斯", role: "死者/画家", description: "才华横溢但花心，有多个情人", isVictim: true },
+      { name: "卡洛琳", role: "妻子/已故", description: "被定罪的凶手，但女儿坚信她无辜", secret: "她确实知道凶手是谁——但选择了沉默" },
+      { name: "菲利普", role: "艾米斯的好友", description: "第一个发现尸体的人", secret: "他和卡洛琳有一段过往" },
+      { name: "埃尔莎", role: "模特/情人", description: "年轻貌美，案发当天也在工作室", secret: "她在毒药瓶上留下了指纹", isKiller: true },
+      { name: "梅雷迪斯", role: "邻居/家庭主妇", description: "崇拜艾米斯但从未被注意", secret: "她整个下午都在偷看工作室" },
+    ],
+    rounds: [
+      { round: 1, name: "五个版本", type: "investigation", description: "听取五个人的证词", keyEvents: ["发现所有证词都相互矛盾"] },
+      { round: 2, name: "交叉验证", type: "discussion", description: "田曦薇和李一桐交叉对比证词", keyEvents: ["李一桐发现时间线重合点"] },
+      { round: 3, name: "十六年的沉默", type: "reveal", description: "真相揭晓——卡洛琳知道凶手但不是凶手", keyEvents: ["卡洛琳的信最后揭示了答案"] },
+    ],
+    clues: [
+      { id: "clue_m04_01", name: "五份证词", description: "五个人对同一件事的描述完全不同——必定有人撒谎", location: "调查记录", importance: "key", revealsTruth: "找出撒谎者" },
+      { id: "clue_m04_02", name: "毒药瓶", description: "瓶子上有埃尔莎的指纹——但她声称案发前一个月用过", location: "证物", importance: "key", revealsTruth: "瓶子上有两组指纹：卡洛琳和埃尔莎" },
+      { id: "clue_m04_03", name: "卡洛琳的遗信", description: "她在狱中给女儿写的最后一封信：'我选择沉默，因为我爱的人太多了'", location: "女儿手中", importance: "key", revealsTruth: "卡洛琳知道凶手是谁但保护了对方" },
+    ],
+    truth: `凶手是埃尔莎——艾米斯的年轻情人。她发现艾米斯不会为她离开卡洛琳，一怒之下毒死了他。
+卡洛琳发现了真相，但选择了沉默。因为她要保护年幼的女儿——如果真相曝光，女儿将在丑闻中长大。
+她用十六年的牢狱和死亡，换取了女儿清白的人生。`,
+    roles: {
+      tianxiwei: "眼眶红了：'母亲为了保护孩子...什么都能忍...'",
+      liyitong: "握着她的手不松开",
+      player: "是否揭开真相",
+    },
+  },
+
+  {
+    id: "script_m05",
+    title: "遗书里的谎言",
+    length: "medium",
+    inspiration: "阿加莎·克里斯蒂《悬崖上的谋杀》+ 连城三纪彦《一朵桔梗花》",
+    scene: "rainy_cafe",
+    playerCount: { min: 3, max: 5 },
+    estimatedTime: "45-65分钟",
+    difficulty: "medium",
+    background: `著名作家在悬崖边的别墅中坠亡。他留下了一封遗书，承认自己江郎才尽，决定结束生命。
+但他的编辑发现了一个破绽：遗书是用打字机打的——而作家从来不用打字机，他只手写。
+你、田曦薇和李一桐来到这座笼罩在阴雨中的海边别墅，发现遗书中每一句话都藏着一个谎言。`,
+    characters: [
+      { name: "作家", role: "死者", description: "近年来江郎才尽，但最近突然交出了质量极高的新作", isVictim: true },
+      { name: "编辑", role: "发现遗书破绽的人", description: "和作家合作了二十年，最了解他", secret: "他欠了高利贷" },
+      { name: "作家妻子", role: "遗孀", description: "悲痛但不愿多谈", secret: "她在案发当晚不在家——和朋友在一起", isKiller: true },
+      { name: "代笔作家", role: "真正的作者", description: "年轻的作家，最近突然有钱了", secret: "他一直在给死者代笔" },
+    ],
+    rounds: [
+      { round: 1, name: "假遗书", type: "investigation", description: "发现遗书是伪造的", keyEvents: ["打字机遗书", "手写习惯的矛盾"] },
+      { round: 2, name: "代笔秘密", type: "investigation", description: "发现作家最近的作品都是代笔", keyEvents: ["代笔合同被发现"] },
+      { round: 3, name: "保险箱", type: "confrontation", description: "发现妻子知道代笔的事但隐瞒了", keyEvents: ["妻子的不在场证明被打破"] },
+    ],
+    clues: [
+      { id: "clue_m05_01", name: "打字机遗书", description: "作家一辈子只用手写——这份打字机打印的遗书一定是伪造的", location: "书房", importance: "key", revealsTruth: "遗书是凶手放的" },
+      { id: "clue_m05_02", name: "代笔合同", description: "作家和年轻作者之间的代笔协议——作家支付高额费用", location: "保险箱", importance: "key", revealsTruth: "代笔人想要更高的价码或署名权" },
+      { id: "clue_m05_03", name: "妻子的机票", description: "她声称案发时在朋友家——但机票显示她提前一天回来了", location: "她的包里", importance: "key", revealsTruth: "妻子在撒谎" },
+    ],
+    truth: `作家江郎才尽后雇了代笔。代笔人要求加价和署名权，作家拒绝了。代笔人威胁要公开。
+作家的妻子为了让丈夫保住名誉，偷偷给了代笔人一大笔钱。但代笔人贪得无厌地继续勒索。
+案发当晚，妻子和代笔人在悬崖边摊牌。推搡中代笔人坠崖——妻子失手杀了他。
+她伪造了遗书想让这看起来像自杀。但她不知道丈夫从来不用打字机——二十年的编辑一眼就认出了破绽。`,
+    roles: {
+      tianxiwei: "被妻子保护丈夫的心打动，但无法原谅",
+      liyitong: "'她想守护的东西——最后什么都没守住'",
+      player: "最后的选择",
+    },
+  },
+];
+
+// ==========================================
+// 辅助函数
+// ==========================================
+
+export function getAllScripts(): MysteryScript[] {
+  return [...LONG_SCRIPTS, ...MEDIUM_SCRIPTS];
+}
+
+export function getScriptById(id: string): MysteryScript | undefined {
+  return getAllScripts().find((s) => s.id === id);
+}
+
+export function getScriptsByLength(length: ScriptLength): MysteryScript[] {
+  return length === "long" ? LONG_SCRIPTS : MEDIUM_SCRIPTS;
+}
